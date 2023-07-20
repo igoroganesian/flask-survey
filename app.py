@@ -31,3 +31,23 @@ def render_question(num):
     question = survey.questions[num]
 
     return render_template("/question.html", question=question)
+
+@app.post("/questions/<int:num>")
+def send_answers(num):
+
+    answer = request.form["answer"]
+
+    global response
+    response.append(answer)
+
+    # next_num = num + 1
+
+    # if question[next_num]:
+
+    # return redirect(f"/questions/{next_num}")
+
+@app.post("/answer")
+def store_answer():
+
+
+    return redirect(f"/questions/<int:num>")
