@@ -7,3 +7,27 @@ app.config['SECRET_KEY'] = "never-tell!"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
+
+response = []
+#store question answers here
+# ex. ['Yes', 'No', 'Less than $10,000', 'Yes']
+
+@app.get("/")
+def render_survey():
+    """renders survey template on / page"""
+
+    return render_template("/survey_start.html", survey=survey)
+
+@app.post("/begin")
+def redirect_button():
+    """sets button to redirect to /questions/0"""
+
+    return redirect("/questions/0")
+
+@app.get("/questions/<int:num>")
+def render_question(num):
+    """renders specified question form on redirect"""
+
+    question = survey.questions[num]
+
+    return render_template("/question.html", question=question)
