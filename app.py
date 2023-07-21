@@ -9,8 +9,6 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
 response = []
-#store question answers here
-# ex. ['Yes', 'No', 'Less than $10,000', 'Yes']
 
 @app.get("/")
 def render_survey():
@@ -21,33 +19,44 @@ def render_survey():
 @app.post("/begin")
 def redirect_button():
     """sets button to redirect to /questions/0"""
+    """edit"""
 
+    response.clear()
     return redirect("/questions/0")
 
 @app.get("/questions/<int:num>")
 def render_question(num):
-    """renders specified question form on redirect"""
+    """renders *specified question form on *redirect"""
 
     question = survey.questions[num]
 
     return render_template("/question.html", question=question)
 
-@app.post("/questions/<int:num>")
-def send_answers(num):
-
-    answer = request.form["answer"]
-
-    global response
-    response.append(answer)
-
-    # next_num = num + 1
-
-    # if question[next_num]:
-
-    # return redirect(f"/questions/{next_num}")
-
 @app.post("/answer")
 def store_answer():
+    """stores answers in response list and redirects to next question; or at end,
+    shows completion page with question: answer pairs"""
 
+    # global response
+    # global survey comment about it
 
-    return redirect(f"/questions/<int:num>")
+    answer = request.form["answer"]
+    response.append(answer)
+
+    next_num = len(response)
+
+    if (next_num < len(survey.questions)):
+        return redirect(f"/questions/{next_num}")
+    else:
+        response_dictionary = {}
+        count = 0
+        for question in survey.questions:
+            response_dictionary[question.prompt] = response[count]
+            count += 1
+        return render_template("/completion.html", response_dictionary=response_dictionary)
+
+    # if (next_num < len(survey.questions)):
+    #     return redirect(f"/questions/{next_num}")
+    # else:
+    #     return render_template("/completion.html",
+    #                            survey=survey, response=response)
