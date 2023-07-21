@@ -8,11 +8,12 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-response = []
+
 
 @app.get("/")
 def render_survey():
     """renders survey template on / page"""
+    session["responses"] = []
 
     return render_template("/survey_start.html", survey=survey)
 
@@ -21,7 +22,7 @@ def redirect_button():
     """sets button to redirect to /questions/0"""
     """edit"""
 
-    response.clear()
+    session["responses"].clear()
     return redirect("/questions/0")
 
 @app.get("/questions/<int:num>")
@@ -41,17 +42,22 @@ def store_answer():
     # global survey comment about it
 
     answer = request.form["answer"]
-    response.append(answer)
+    session["responses"] += answer
 
-    next_num = len(response)
+    next_num = len(session["responses"])
+
 
     if (next_num < len(survey.questions)):
+        print("I'm in the if")
+        print("next num:", next_num)
+        print("responses", session["responses"])
         return redirect(f"/questions/{next_num}")
     else:
+        print ("I'm in the else")
         response_dictionary = {}
         count = 0
         for question in survey.questions:
-            response_dictionary[question.prompt] = response[count]
+            response_dictionary[question.prompt] = session["responses"][count]
             count += 1
         return render_template("/completion.html", response_dictionary=response_dictionary)
 
